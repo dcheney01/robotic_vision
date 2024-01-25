@@ -2,17 +2,17 @@ import cv2 as cv
 import os
 import numpy as np
 
-def detect_corners(path, display=False):
+def detect_corners(path, size, display=False):
     img = cv.imread(path)
     gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-    ret, corners = cv.findChessboardCorners(gray_img, (10,7), None)
+    ret, corners = cv.findChessboardCorners(gray_img, size, None)
     if ret:
         refined_corners = cv.cornerSubPix(gray_img, corners, (11,11), (-1,-1), (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001))
 
         if display:
             refined_corners_img = img.copy()
-            cv.drawChessboardCorners(refined_corners_img, (10,7), refined_corners, ret)
+            cv.drawChessboardCorners(refined_corners_img, size, refined_corners, ret)
 
             cv.imshow("Refined Corners", refined_corners_img)
             cv.waitKey(0)
@@ -20,7 +20,7 @@ def detect_corners(path, display=False):
 
         return refined_corners
     else:
-        print("No corners detected")
+        print(f"No corners detected in {path}")
 
 if __name__ == "__main__":
     # img_path = "hw2/data/cal_imgs/AR1.jpg"
@@ -30,12 +30,13 @@ if __name__ == "__main__":
 
     objpoints = []
     imgpoints = []
+    size = (10,7)
 
     data_folder = "hw2/data/cal_imgs"
     data = sorted(os.listdir(data_folder))
     for img in data:
         img_path = os.path.join(data_folder, img)
-        corners = detect_corners(img_path, display=False)
+        corners = detect_corners(img_path, size, display=False)
 
         if corners is not None:
             objpoints.append(objp)
@@ -61,3 +62,6 @@ if __name__ == "__main__":
 
     print("Distortion Coefficients: ")
     print(dist)
+
+    np.save("hw2/data/intrinsic_params.npy", mtx)
+    np.save("hw2/data/distortion_params.npy", dist)

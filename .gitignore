@@ -4,3 +4,7 @@
 *.mp4
 *.DS_Store
 *.txt
+*.npy
+*.zip
+*.pdf
+*.pyc
