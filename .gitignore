@@ -8,3 +8,14 @@
 *.zip
 *.pdf
 *.pyc
+*.pt
+*.tif
+*.cache
+*.yaml
+events.*
+*.csv
+*.log
+debug*
+wandb*
+*.wandb
+*.json
