@@ -41,19 +41,7 @@ def calibrate_camera(data_name, data_folder):
 
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, (640,480), None, None)
 
-    pixels_size = 7.4e-3
-    pixels_per_mm = 1 / pixels_size
-    focal_length_x_pixels = mtx[0][0]
-    focal_length_y_pixels = mtx[1][1]
-
-    focal_length_x_mm = focal_length_x_pixels / pixels_per_mm
-    focal_length_y_mm = focal_length_y_pixels / pixels_per_mm
-
     np.set_printoptions(suppress=True, precision=4)
-
-    print(f"{data_name} Focal Length (x): ", focal_length_x_mm, "mm")
-    print(f"{data_name} Focal Length (y): ", focal_length_y_mm, "mm")
-    print(f"{data_name} Average Focal Length: ", (focal_length_x_mm + focal_length_y_mm) / 2, "mm")
 
     print("Instrinsic Matrix: ")
     print(mtx)
