@@ -63,6 +63,9 @@ def run_task2(data_path, LR="L"):
             # cv2.imshow('Original Image with ROI', roi_image)
 
             ball_img = find_ball(x, y, w, h, img, roi_image)
+
+            if counter % 5 == 0:
+                cv2.imwrite("hw5_baseballtracking/output_imgs/" + LR + str(counter) + ".png", ball_img)
         else:
             print("Didn't find any contours")
         
@@ -72,12 +75,11 @@ def run_task2(data_path, LR="L"):
         # cv2.imshow("Left Image", img)
         # cv2.waitKey(0)
 
-        if counter % 5 == 0:
-            cv2.imwrite("robotic_vision/hw5_baseballtracking/output_imgs/" + LR + str(counter) + ".png", ball_img)
+
         counter += 1
 
 if __name__=="__main__":
-    data_path = "robotic_vision/hw5_baseballtracking/data/20240215113225/"
+    data_path = "hw5_baseballtracking/data/20240215113225/"
     
     run_task2(data_path, "L")
 
