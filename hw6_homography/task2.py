@@ -20,7 +20,7 @@ def get_matches(target, ref_des, sift, flann):
 
     return target_kp, good
 
-def get_object_location(good, ref_kp, target_kp, h, w):
+def get_homography_mask(good, ref_kp, target_kp):
     src_points = np.float32([ref_kp[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
     dst_points = np.float32([target_kp[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
 
@@ -28,9 +28,13 @@ def get_object_location(good, ref_kp, target_kp, h, w):
     M, mask = cv.findHomography(src_points, dst_points, cv.RANSAC, 5.0)
     matchesMask = mask.ravel().tolist()
 
-    pts = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]).reshape(-1, 1, 2)
-    dst = cv.perspectiveTransform(pts, M)
-    return matchesMask, dst
+    return M, matchesMask
+
+def transform_img(img, M):
+    points = np.float32([[0, 0], [0, img.shape[0]], [img.shape[1], img.shape[0]], [img.shape[1], 0]]).reshape(-1, 1, 2)
+    dst_points = cv.perspectiveTransform(points, M)
+    dst_img = cv.warpPerspective(img, M, (img.shape[1], img.shape[0]))
+    return dst_points, dst_img
 
 if __name__=="__main__":
     ref_img_path = os.path.join('hw6_homography', 'data', 'ref_window.jpg')
@@ -42,35 +46,49 @@ if __name__=="__main__":
     target_img_path = os.path.join('hw6_homography', 'data', 'target_img_shire.jpg')
     target_img = cv.imread(target_img_path)
     target_img = cv.resize(target_img, (640, 480))
-    target_img_gray = cv.cvtColor(target_img, cv.COLOR_BGR2GRAY)
+
+    video_path = os.path.join('hw6_homography', 'data', 'orig_video.mp4')
+    # resize the video to 640, 480 as mp4
+    cap = cv.VideoCapture(video_path)
+    fourcc = cv.VideoWriter_fourcc(*'mp4v')
+    out = cv.VideoWriter('hw6_homography/output/task2_final_video1.mp4', fourcc, 30.0, (640, 480))
+
+    # setup sift and flann
+    sift = cv.SIFT_create()
+    index_params = dict(algorithm=1)
+    search_params = dict(checks=100)
+    flann = cv.FlannBasedMatcher(index_params, search_params)
+
+    ref_kp, ref_des = get_keypoints(ref_img_cropped_gray, sift)
+
+    for i in range(0, 50000):
+        ret, scene = cap.read()
+        if not ret:
+            break
+
+        scene_resized = cv.resize(scene, (640, 480))
+        scene_gray = cv.cvtColor(scene_resized, cv.COLOR_BGR2GRAY)
+        target_kp, good = get_matches(scene_gray, ref_des, sift, flann)
+        M, matchesMask = get_homography_mask(good, ref_kp, target_kp)
+
+        dst_points, dst_img = transform_img(target_img, M)
+
+        # superimpose target_dst onto scene_resized
+        target_dst = scene_resized.copy()
+        cv.fillPoly(target_dst, [np.int32(dst_points)], (0, 0, 0))
+        target_dst = cv.add(target_dst, dst_img)
+
+        # draw object outline and the matches
+        # scene_resized = cv.polylines(scene_resized, [np.int32(dst_points)], True, 255, 3, cv.LINE_AA)
+        # draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matchesMask, flags=2)
+        # img_matches = cv.drawMatches(ref_img_cropped, ref_kp, scene_resized, target_kp, good, None, **draw_params)
+
+        out.write(target_dst)
+
+        # cv.imshow('img_matches', img_matches)
+        # cv.imshow('target_dst', target_dst)
+        # cv.waitKey(0)
 
 
-    cv.imshow('ref_img_cropped', ref_img_cropped)
-    cv.imshow('target_img', target_img)
-    # cv.imshow('img_with_ref', img_with_ref)
-    cv.waitKey(0)
 
-    # # setup sift and flann + drawing params (constant)
-    # sift = cv.SIFT_create()
-    # index_params = dict(algorithm=1)
-    # search_params = dict(checks=100)
-    # flann = cv.FlannBasedMatcher(index_params, search_params)
-
-    # ref_kp, ref_des = get_keypoints(ref_img_cropped_gray, sift)
-
-    # # for all images
-    # img_with_ref = os.path.join('hw6_homography', 'data', 'ref_img_in_scene.jpg')
-    # img_with_ref = cv.imread(img_with_ref)
-    # img_with_ref_gray = cv.cvtColor(img_with_ref, cv.COLOR_BGR2GRAY)
-    # target_kp, good = get_matches(img_with_ref_gray, ref_des, sift, flann)
-    # matchesMask, dst = get_object_location(good, ref_kp, target_kp, h, w)
-
-    # # draw object outline and the matches
-    # img_with_ref = cv.polylines(img_with_ref, [np.int32(dst)], True, 255, 3, cv.LINE_AA)
-    # draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matchesMask, flags=2)
-    # img_matches = cv.drawMatches(ref_img_cropped, ref_kp, img_with_ref, target_kp, good, None, **draw_params)
-
-    # cv.imshow('img_matches', img_matches)
-    # cv.imwrite('hw6_homography/output/task1_matches.jpg', img_matches)
-    # cv.waitKey(0)
 
