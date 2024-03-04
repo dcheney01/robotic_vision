@@ -102,21 +102,21 @@ if __name__=="__main__":
             out.write(target_dst)
 
             # draw object outline and the matches
-            # scene_imgs[i] = cv.polylines(scene_imgs[i], [np.int32(dst_points)], True, 255, 3, cv.LINE_AA)
-            # draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matchesMask, flags=2)
-            # img_matches = cv.drawMatches(ref_img_cropped, ref_kp, scene_imgs[i], target_kp, good, None, **draw_params)
+            scene_imgs[i] = cv.polylines(scene_imgs[i], [np.int32(dst_points)], True, 255, 3, cv.LINE_AA)
+            draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, matchesMask=matchesMask, flags=2)
+            img_matches = cv.drawMatches(ref_img_cropped, ref_kp, scene_imgs[i], target_kp, good, None, **draw_params)
 
             # draw keypoints on ref and on the scene
-            # ref_img_cropped = cv.drawKeypoints(ref_img_cropped, ref_kp, ref_img_cropped)
-            # scene_imgs[i] = cv.drawKeypoints(scene_imgs[i], target_kp, scene_imgs[i])
+            ref_img_cropped = cv.drawKeypoints(ref_img_cropped, ref_kp, ref_img_cropped)
+            scene_imgs[i] = cv.drawKeypoints(scene_imgs[i], target_kp, scene_imgs[i])
 
-            # cv.imshow('ref_img_cropped', ref_img_cropped)
-            # cv.imshow('scene_resized', scene_imgs[i])
-            # cv.imshow("target _img", target_imgs[i-109])
-            # cv.imshow("transformed target", dst_img)
-            # cv.imshow('img_matches', img_matches)
+            cv.imshow('ref_img_cropped', ref_img_cropped)
+            cv.imshow('scene_resized', scene_imgs[i])
+            cv.imshow("target _img", target_imgs[i-109])
+            cv.imshow("transformed target", dst_img)
+            cv.imshow('img_matches', img_matches)
             cv.imshow('target_dst', target_dst)
-            cv.waitKey(1)
+            cv.waitKey(0)
 
 
 
