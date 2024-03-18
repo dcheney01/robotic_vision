@@ -121,6 +121,6 @@ if __name__=="__main__":
             # cv.imshow('red_original_cropped', red_original_cropped)
             # cv.imshow('img_cropped', img_cropped)
             # cv.imshow('cropped_abs_diff_processed', cropped_abs_diff_processed)
-            # # cv.imwrite('hw7_image_registration/output_data/cropped_abs_diff_rectangles ' + img_path.split(" ")[-1], cropped_abs_diff_processed)
+            cv.imwrite('hw7_image_registration/output_data/red_gridlines ' + img_path.split(" ")[-1], cropped_abs_diff_processed)
             # cv.waitKey(0)
             # # break
